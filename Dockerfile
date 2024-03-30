@@ -26,6 +26,7 @@ RUN apt update \
     unzip \
     zlib1g-dev \
     libwebp-dev \
+    dos2unix \
   && apt upgrade -y ca-certificates \
   && apt clean \
   && rm -rf /var/lib/apt/lists/* \
@@ -72,6 +73,9 @@ RUN composer config -g repos.packagist composer https://packagist.jp
 
 COPY . ${APACHE_DOCUMENT_ROOT}
 WORKDIR ${APACHE_DOCUMENT_ROOT}
+
+# In the case of building the docker image on Windows, the line endings must be converted for Unix, or shebang will not work.
+RUN dos2unix /usr/local/bin/docker-php-entrypoint ${APACHE_DOCUMENT_ROOT}/bin/*
 
 RUN find ${APACHE_DOCUMENT_ROOT} \( -path ${APACHE_DOCUMENT_ROOT}/vendor -prune \) -or -print0 \
   | xargs -0 chown www-data:www-data \
